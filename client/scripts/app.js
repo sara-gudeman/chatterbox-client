@@ -1,11 +1,23 @@
 // YOUR CODE HERE:
 // https://api.parse.com/1/classes/chatterbox
+
+
+
 var app = {
   server: 'https://api.parse.com/1/classes/chatterbox',
   friends: [],
 
   init: function() {
     app.fetch(displayMessages);
+    app.fetch(function(messages) {
+      var rooms = [];
+      messages.results.forEach(function(message) {
+        if (rooms.indexOf(clean(message.roomname)) === -1) {
+          rooms.push(clean(message.roomname));
+          app.addRoom(clean(message.roomname));
+        }
+      });
+    });
   },
 
   send: function(message) {
@@ -50,11 +62,13 @@ var app = {
   },
 
   addMessage: function(message) {
-    $('#chats').append(messageTemplate(message));
+    $('#chats').prepend(messageTemplate(message));
   },
 
   addRoom: function(roomname) {
-    $('#roomSelect').append('<span>' + roomname + '</span>');
+    if (!$('#roomSelect option[value="' + roomname + '"]').val()) {
+      $('#roomSelect').append('<option value="' + roomname + '">' + roomname + '</option>');
+    }
   },
 
   addFriend: function(username) {
@@ -68,7 +82,8 @@ var app = {
       roomname: roomname
     };
     app.send(message);
-    //app.addMessage(message);
+    app.addMessage(message);
+    app.addRoom(message.roomname);
   }
 
 };
@@ -79,6 +94,7 @@ $(document).ready(function() {
   $('#send').on('submit', function() {
     //alert($('#message').val());
     app.handleSubmit($('#message').val(), $('#roomName').val())
+    return false;
   });
 
   $('#clearChats').on('click', function() {
@@ -89,6 +105,10 @@ $(document).ready(function() {
     app.addFriend($(this).text());
   });
 
+  $('#send').on('change', '#roomSelect', function() {
+    console.log($('#roomSelect').val());
+  })
+
   var update = function() {
     app.fetch(displayMessages);
     setTimeout(update, 5000);
@@ -97,16 +117,22 @@ $(document).ready(function() {
   update();
 });
 
-var cleaner = function(templateVariables) {
-  var cleaned = {};
+
+var clean = function(text) {
   var removeTags = new RegExp('<[^>]*>', 'g');
-  _.each(templateVariables, function(value, key) {
-    if (value !== null) {
-      cleaned[key] = value.replace(removeTags, '');
-    }
-  });
-  return cleaned;
+  if (text !== undefined && text !== '' && text.length < 40) {
+    return text.replace(removeTags, '');
+  }
 };
+
+/*var cleanObj = function(fullMsg) {
+  var cleanedMsg = {};
+  _.each(fullMsg, function(value, key) {
+    cleanedMsg[key] = clean(value);
+  });
+
+  return cleanedMsg;
+};*/
 
 function displayMessages(data) {
   _.each(data.results, function(message) {
@@ -116,12 +142,11 @@ function displayMessages(data) {
   });
 };
 // Templates
-function messageTemplate(variables) {
-  cleaned = cleaner(variables);
+function messageTemplate(msg) {
   return '<ul class="chat">' +
-    '<span class="username">' + cleaned.username + '</span>' +
-    '<p class="text">' + cleaned.text +'</p>' +
-    '<time class="created" datetime="' + cleaned.createdAt + '">' + cleaned.createdAt+ '</time>' +
-    '<time class="updated" datetime="' + cleaned.updatedAt + '">' + cleaned.updatedAt + '</time>' +
+    '<span class="username">' + clean(msg.username) + '</span>' +
+    '<p class="text">' + clean(msg.text) +'</p>' +
+    '<time class="created" datetime="' + clean(msg.createdAt) + '">' + clean(msg.createdAt)+ '</time>' +
+    '<time class="updated" datetime="' + clean(msg.updatedAt) + '">' + clean(msg.updatedAt) + '</time>' +
   '</ul>'
 };
