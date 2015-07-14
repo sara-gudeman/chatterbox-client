@@ -16,7 +16,16 @@
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
-      <div class="messages"></div>
+      <form action="" method="POST">
+        <input type="text" name="username" placeholder="Username">
+        <input type="text" name="roomname" placeholder="Room Name">
+        <textarea name="text" placeholder="Your message..."></textarea>
+        <input type="submit" value="send">
+      </form>
+
+      <button class="clear">Clear all chats</button>
+
+      <div id="chats"></div>
     </div>
   </body>
 </html>
