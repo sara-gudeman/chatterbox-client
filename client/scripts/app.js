@@ -13,7 +13,6 @@ var app = {
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: function (data) {
-        callback(data);
         console.log('chatterbox: Message sent');
       },
       error: function (data) {
@@ -22,8 +21,7 @@ var app = {
       }
     });   
   },
-  fetch: function() {
-
+  fetch: function(callback) {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: 'https://api.parse.com/1/classes/chatterbox',
@@ -42,7 +40,15 @@ var app = {
   },
   clearMessages: function() {
     $('#chats').text('');
+  },
+  addMessage: function(message) {
+    $('#chats').append(messageTemplate(message));
+  },
+
+  addRoom: function(roomname) {
+    $('#roomSelect').append('<span>' + roomname + '</span>');
   }
+
 };
 
 $(document).ready(function() {
@@ -86,7 +92,7 @@ var cleaner = function(templateVariables) {
 };
 
 // Templates
-var messageTemplate = function(variables) {
+function messageTemplate(variables) {
   cleaned = cleaner(variables);
   return '<div class="chat">' +
     '<span class="username">' + cleaned.username + '</span>' +
