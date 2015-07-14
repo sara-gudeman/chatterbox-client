@@ -16,14 +16,13 @@
     <div id="main">
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
-      <form action="" method="POST">
-        <input type="text" name="username" placeholder="Username">
-        <input type="text" name="roomname" placeholder="Room Name">
-        <textarea name="text" placeholder="Your message..."></textarea>
-        <input type="submit" value="send">
+      <form id="send" action="" method="POST">
+        <input id="roomName" type="text" placeholder="Room Name">
+        <input id="message" type="text" placeholder="Your message...">
+        <button class="submit" type="submit">Submit</button>
       </form>
 
-      <button class="clear">Clear all chats</button>
+      <button id="clearChats">Clear all chats</button>
 
       <!-- TO DO: ADD ROOM FUNCTIONALITY -->
       <div id="chats"></div>
