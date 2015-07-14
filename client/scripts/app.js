@@ -1,21 +1,25 @@
 // YOUR CODE HERE:
 // https://api.parse.com/1/classes/chatterbox
 $(document).ready(function() {
-  $.ajax({
-    // This is the url you should use to communicate with the parse API server.
-    url: 'https://api.parse.com/1/classes/chatterbox',
-    type: 'GET',
-    // data: JSON.stringify(message),
-    contentType: 'application/json',
-    success: function (data) {
-      displayMessages(data);
-      console.log('chatterbox: Message sent');
-    },
-    error: function (data) {
-      // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-      console.error('chatterbox: Failed to send message');
-    }
-  });  
+  var getMessages = function(callback) {
+    $.ajax({
+      // This is the url you should use to communicate with the parse API server.
+      url: 'https://api.parse.com/1/classes/chatterbox',
+      type: 'GET',
+      // data: JSON.stringify(message),
+      contentType: 'application/json',
+      success: function (data) {
+        callback(data);
+        console.log('chatterbox: Message sent');
+      },
+      error: function (data) {
+        // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+        console.error('chatterbox: Failed to send message');
+      }
+    });
+  };
+
+
 
   var displayMessages = function(data) {
     _.each(data.results, function(message) {
@@ -25,15 +29,21 @@ $(document).ready(function() {
     });
   };
 
+  var update = function() {
+    getMessages(displayMessages);
+    setTimeout(update, 5000);
+  };
 
-
+  update();
 });
 
 var cleaner = function(templateVariables) {
   var cleaned = {};
   var removeTags = new RegExp('<[^>]*>', 'g');
   _.each(templateVariables, function(value, key) {
-    cleaned[key] = value.replace(removeTags, '');
+    if (value !== null) {
+      cleaned[key] = value.replace(removeTags, '');
+    }
   });
   return cleaned;
 };
