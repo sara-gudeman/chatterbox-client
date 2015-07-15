@@ -37,7 +37,7 @@ var app = {
     });   
   },
 
-  fetch: function(callback) {
+  fetch: function(callback, roomname) {
     $.ajax({
       // This is the url you should use to communicate with the parse API server.
       url: 'https://api.parse.com/1/classes/chatterbox',
@@ -67,7 +67,7 @@ var app = {
 
   addRoom: function(roomname) {
     if (!$('#roomSelect option[value="' + roomname + '"]').val()) {
-      $('#roomSelect').append('<option value="' + roomname + '">' + roomname + '</option>');
+      $('#roomSelect').prepend('<option value="' + roomname + '">' + roomname + '</option>');
     }
   },
 
@@ -82,18 +82,27 @@ var app = {
       roomname: roomname
     };
     app.send(message);
-    app.addMessage(message);
+    $('#roomSelect').val(roomname);
+    //app.addMessage(message);
     app.addRoom(message.roomname);
   }
 
 };
 
 $(document).ready(function() {
+
   app.init();
   //console.log(window.location.search.split('=')[1]);
   $('#send').on('submit', function() {
     //alert($('#message').val());
-    app.handleSubmit($('#message').val(), $('#roomName').val())
+    //console.log($('#roomSelect').val());
+    var selectedRoom = '';
+    if ($('#roomName').val() !== '') {
+      selectedRoom = $('#roomName').val();
+    } else {
+      selectedRoom = $('#roomSelect').val();
+    }
+    app.handleSubmit($('#message').val(), selectedRoom);
     return false;
   });
 
@@ -105,13 +114,15 @@ $(document).ready(function() {
     app.addFriend($(this).text());
   });
 
+  // Changing room
   $('#send').on('change', '#roomSelect', function() {
-    console.log($('#roomSelect').val());
+    var selectedRoom = $('#roomSelect').val();
+    app.fetch(displayMessages);
   })
 
   var update = function() {
     app.fetch(displayMessages);
-    setTimeout(update, 5000);
+    setTimeout(update, 1000);
   };
 
   update();
@@ -120,7 +131,7 @@ $(document).ready(function() {
 
 var clean = function(text) {
   var removeTags = new RegExp('<[^>]*>', 'g');
-  if (text !== undefined && text !== '' && text.length < 40) {
+  if (text !== undefined && text !== null && text !== '' && text.length < 40) {
     return text.replace(removeTags, '');
   }
 };
@@ -134,17 +145,37 @@ var clean = function(text) {
   return cleanedMsg;
 };*/
 
+/*function displayRoomMessages(roomname) {
+  return function(data) {
+    $('#chats').html('');
+    _.each(data.results, function(message) {
+      if (message.roomname === roomname) {
+        $('#chats').prepend(messageTemplate(message)); 
+      }
+    });
+  }
+}*/
+
 function displayMessages(data) {
+  var roomSelected = $('#roomSelect').val();
+  $('#chats').html('');
   _.each(data.results, function(message) {
     if (message.username !== undefined) {
-      $('#chats').append(messageTemplate(message)); 
+      if (roomSelected === '') {
+          $('#chats').append(messageTemplate(message)); 
+      } else {
+        if (message.roomname === roomSelected) {
+          $('#chats').append(messageTemplate(message)); 
+        }
+      }
     }
   });
 };
 // Templates
+console.log(moment("12-25-1995", "MM-DD-YYYY"))
 function messageTemplate(msg) {
   return '<ul class="chat">' +
-    '<span class="username">' + clean(msg.username) + '</span>' +
+    '<span class="username">' + clean(msg.username) + ' >> ' + clean(msg.roomname) + '</span>' +
     '<p class="text">' + clean(msg.text) +'</p>' +
     '<time class="created" datetime="' + clean(msg.createdAt) + '">' + clean(msg.createdAt)+ '</time>' +
     '<time class="updated" datetime="' + clean(msg.updatedAt) + '">' + clean(msg.updatedAt) + '</time>' +
