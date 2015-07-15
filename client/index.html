@@ -9,6 +9,7 @@
     <script src="bower_components/jquery/jquery.min.js"></script>
     <script src="bower_components/underscore/underscore.js"></script>
     <script src="bower_components/backbone/backbone.js"></script>
+    <script src="bower_components/moment/moment.js"></script>
     <!-- your scripts -->
     <script src="env/config.js"></script>
     <script src="scripts/app.js"></script>
@@ -18,8 +19,10 @@
       <h1>chatterbox</h1>
       <!-- Your HTML goes here! -->
       <form id="send" action="" method="POST">
-        <select id="roomSelect"></select>
-        <input id="roomName" type="text" placeholder="New room">
+        <select id="roomSelect">
+          <option value=''>No room selected</option>
+        </select>
+        <input id="roomName" type="text" placeholder="New room" value="">
         <input id="message" type="text" placeholder="Your message...">
         <button class="submit" type="submit">Submit</button>
       </form>
