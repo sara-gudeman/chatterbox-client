@@ -5,7 +5,7 @@
 
 var app = {
   server: 'https://api.parse.com/1/classes/chatterbox',
-  friends: [],
+  friends: {},
 
   init: function() {
     app.fetch(displayMessages);
@@ -67,12 +67,13 @@ var app = {
 
   addRoom: function(roomname) {
     if (!$('#roomSelect option[value="' + roomname + '"]').val()) {
-      $('#roomSelect').prepend('<option value="' + roomname + '">' + roomname + '</option>');
+      $('#roomSelect').append('<option value="' + roomname + '">' + roomname + '</option>');
     }
   },
 
   addFriend: function(username) {
-    app.friends.push(username);
+    app.friends[username] = true;
+    console.log(app.friends);
   },
 
   handleSubmit: function(text, roomname) {
@@ -160,7 +161,11 @@ function displayMessages(data) {
   var roomSelected = $('#roomSelect').val();
   $('#chats').html('');
   _.each(data.results, function(message) {
+    message.friend = '';
     if (message.username !== undefined) {
+      if (app.friends[message.username]) {
+        message.friend = 'friend';
+      }
       if (roomSelected === '') {
           $('#chats').append(messageTemplate(message)); 
       } else {
@@ -174,8 +179,9 @@ function displayMessages(data) {
 // Templates
 console.log(moment("12-25-1995", "MM-DD-YYYY"))
 function messageTemplate(msg) {
-  return '<ul class="chat">' +
-    '<span class="username">' + clean(msg.username) + ' >> ' + clean(msg.roomname) + '</span>' +
+  return '<ul class="chat ' + msg.friend + '">' +
+    '<span class="username">' + clean(msg.username) + '</span>' +
+    '<span class="room">' + clean(msg.roomname) + '</span>' +
     '<p class="text">' + clean(msg.text) +'</p>' +
     '<time class="created" datetime="' + clean(msg.createdAt) + '">' + clean(msg.createdAt)+ '</time>' +
     '<time class="updated" datetime="' + clean(msg.updatedAt) + '">' + clean(msg.updatedAt) + '</time>' +
